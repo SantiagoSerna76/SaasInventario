@@ -2,7 +2,7 @@ fastapi
 uvicorn
 mysql-connector-python
 python-dotenv
-google-generativeai
+google-genai
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
