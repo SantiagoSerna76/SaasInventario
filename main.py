@@ -17,6 +17,7 @@ class ProductoFactura(BaseModel):
     nombre_producto: str
     cantidad: int
     precio_unitario: float
+    id_categoria: int = 1
 
 class ProductoCreatePayload(BaseModel):
     id_categoria: int
@@ -218,9 +219,19 @@ async def escanear_factura(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    # Llamar a IA
+    # Llamar a IA pasándole las categorías actuales
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True) if hasattr(conn.cursor(), 'dictionary') else conn.cursor()
+    # Safe fallback if dictionary=True is not supported by pure python cursor
+    cursor.execute("SELECT id_categoria, nombre_categoria FROM CATEGORIAS")
+    categorias_db = cursor.fetchall()
+    
+    # Format categories as a string list for the prompt
+    lista_categorias = [f"ID: {row[0] if isinstance(row, tuple) else row['id_categoria']} - Nombre: {row[1] if isinstance(row, tuple) else row['nombre_categoria']}" for row in categorias_db]
+    conn.close()
+
     try:
-        data = extract_invoice_data(file_path)
+        data = extract_invoice_data(file_path, lista_categorias)
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -255,11 +266,11 @@ async def guardar_factura(payload: FacturaPayload, token: str = Depends(oauth2_s
             if res:
                 id_prod = res[0]
             else:
-                # Si el producto no existe, crearlo automáticamente con una categoría por defecto (ej. 1)
+                # Si el producto no existe, crearlo automáticamente con la categoría elegida por la IA
                 precio_venta_estimado = p.precio_unitario * 1.30 # 30% de ganancia
                 cursor.execute(
                     "INSERT INTO PRODUCTOS (id_empresa, id_categoria, nombre_producto, precio_costo, precio_venta, cantidad_stock) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (id_empresa, 1, p.nombre_producto, p.precio_unitario, precio_venta_estimado, 0)
+                    (id_empresa, p.id_categoria, p.nombre_producto, p.precio_unitario, precio_venta_estimado, 0)
                 )
                 cursor.execute("SELECT LAST_INSERT_ID()")
                 id_prod = cursor.fetchone()[0]
