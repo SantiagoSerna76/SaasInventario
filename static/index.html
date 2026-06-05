@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Inventario</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen" class="screen active">
+        <div class="login-card glass">
+            <div class="login-header">
+                <i class="ph ph-buildings icon-large"></i>
+                <h2>SaaS Inventario</h2>
+                <p>Ingresa a tu cuenta</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required placeholder="admin@la14.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" required placeholder="123456">
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <button type="submit" class="btn btn-primary">Ingresar <i class="ph ph-arrow-right"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL (DASHBOARD) -->
+    <div id="dashboard-screen" class="screen hidden">
+        <aside class="sidebar glass">
+            <div class="brand">
+                <i class="ph ph-buildings"></i>
+                <span>SaaS Inventario</span>
+            </div>
+            <nav>
+                <a href="#" class="active" onclick="showSection('productos')"><i class="ph ph-box-cube"></i> Productos</a>
+                <a href="#" onclick="showSection('ventas')"><i class="ph ph-shopping-cart"></i> Ventas</a>
+                <a href="#" onclick="showSection('escaner')"><i class="ph ph-scan"></i> Escanear Factura</a>
+            </nav>
+            <div class="user-info">
+                <i class="ph ph-user-circle"></i>
+                <span id="user-name">Usuario</span>
+                <button class="btn btn-icon" onclick="logout()" title="Cerrar Sesión"><i class="ph ph-sign-out"></i></button>
+            </div>
+        </aside>
+        
+        <main class="content">
+            <header>
+                <h1 id="section-title">Dashboard</h1>
+            </header>
+
+            <!-- SECCIÓN PRODUCTOS -->
+            <section id="sec-productos" class="dashboard-section active">
+                <div class="card glass table-card">
+                    <div class="card-header">
+                        <h3>Inventario Actual</h3>
+                        <button class="btn btn-sm btn-primary" onclick="openAddModal()"><i class="ph ph-plus"></i> Nuevo</button>
+                    </div>
+                    <table id="table-productos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Precio Venta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Llenado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN VENTAS -->
+            <section id="sec-ventas" class="dashboard-section hidden">
+                <div class="card glass">
+                    <div class="card-header">
+                        <h3>Registrar Nueva Venta</h3>
+                    </div>
+                    <form id="venta-form" style="max-width: 500px;">
+                        <div class="input-group">
+                            <label>Producto a Vender</label>
+                            <select id="venta-producto" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--surface-border); background: #f8fafc; font-size: 1rem; outline: none; margin-bottom: 20px;">
+                                <!-- Llenado dinámico -->
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Cantidad</label>
+                            <input type="number" id="venta-cantidad" min="1" value="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="ph ph-shopping-cart"></i> Confirmar Venta</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECCIÓN ESCÁNER -->
+            <section id="sec-escaner" class="dashboard-section hidden">
+                <div class="card glass ai-card">
+                    <div class="ai-header">
+                        <i class="ph ph-scan icon-large gradient-text"></i>
+                        <h3>Scanner de Facturas</h3>
+                        <p>Sube una imagen de tu factura de compra y extraeremos los datos automáticamente.</p>
+                    </div>
+                    <div class="upload-area" id="drop-zone">
+                        <i class="ph ph-upload-simple"></i>
+                        <p>Arrastra tu factura aquí o</p>
+                        <input type="file" id="file-input" accept="image/*" hidden>
+                        <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">Seleccionar Archivo</button>
+                    </div>
+                    
+                    <div id="scan-loading" class="hidden">
+                        <div class="spinner"></div>
+                        <p>Analizando factura...</p>
+                    </div>
+
+                    <div id="scan-result" class="hidden glass-panel">
+                        <h4>Datos Extraídos</h4>
+                        <pre id="json-result"></pre>
+                        <button class="btn btn-primary" onclick="guardarFactura()"><i class="ph ph-floppy-disk"></i> Guardar en BD</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL EDITAR PRODUCTO -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <h3>Editar Producto</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="input-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="edit-nombre" required>
+                </div>
+                <div class="input-group">
+                    <label>Precio Venta ($)</label>
+                    <input type="number" id="edit-precio" required>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO PRODUCTO -->
+    <div id="add-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <h3>Nuevo Producto</h3>
+            <form id="add-form">
+                <div class="input-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="add-nombre" required>
+                </div>
+                <div class="input-group">
+                    <label>Categoría</label>
+                    <select id="add-categoria" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--surface-border); background: #f8fafc; font-size: 1rem; outline: none;">
+                        <option value="1">Lácteos</option>
+                        <option value="2">Cereales</option>
+                        <option value="3">Bebidas</option>
+                        <option value="4">Computadores</option>
+                        <option value="5">Periféricos</option>
+                        <option value="6">Celulares</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <div class="input-group" style="flex:1;">
+                        <label>Precio de Costo ($)</label>
+                        <input type="number" id="add-costo" required>
+                    </div>
+                    <div class="input-group" style="flex:1;">
+                        <label>Precio de Venta ($)</label>
+                        <input type="number" id="add-venta" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Stock Inicial</label>
+                    <input type="number" id="add-stock" required value="0">
+                </div>
+                <div style="display:flex;gap:10px;margin-top:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

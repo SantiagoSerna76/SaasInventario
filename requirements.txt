@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+mysql-connector-python
+python-dotenv
+google-generativeai
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+jinja2
