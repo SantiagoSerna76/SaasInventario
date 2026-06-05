@@ -338,3 +338,34 @@ async function guardarFactura() {
         console.error(e);
     }
 }
+
+// NAVEGACIÓN MANUAL (Reemplazando onclick en linea)
+document.getElementById('nav-productos').addEventListener('click', (e) => { e.preventDefault(); showSection('productos'); });
+document.getElementById('nav-ventas').addEventListener('click', (e) => { e.preventDefault(); showSection('ventas'); });
+document.getElementById('nav-escaner').addEventListener('click', (e) => { e.preventDefault(); showSection('escaner'); });
+document.getElementById('nav-informes').addEventListener('click', (e) => { 
+    e.preventDefault(); 
+    showSection('informes'); 
+    cargarInforme();
+});
+
+// CARGAR INFORME SEMANAL
+async function cargarInforme() {
+    try {
+        const response = await fetch(`${API_URL}/informes/semanal`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('informe-total').innerText = `$${data.total_semana.toLocaleString()}`;
+            document.getElementById('informe-mas').innerText = data.mas_vendido;
+            document.getElementById('informe-mas-cant').innerText = `${data.mas_vendido_cant} unidades`;
+            document.getElementById('informe-menos').innerText = data.menos_vendido;
+            document.getElementById('informe-menos-cant').innerText = `${data.menos_vendido_cant} unidades`;
+        } else {
+            console.error('Error cargando informe');
+        }
+    } catch (e) {
+        console.error('Network error loading reports', e);
+    }
+}

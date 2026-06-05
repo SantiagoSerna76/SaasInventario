@@ -41,9 +41,10 @@
                 <span>SaaS Inventario</span>
             </div>
             <nav>
-                <a href="#" class="active" onclick="showSection('productos')"><i class="ph ph-box-cube"></i> Productos</a>
-                <a href="#" onclick="showSection('ventas')"><i class="ph ph-shopping-cart"></i> Ventas</a>
-                <a href="#" onclick="showSection('escaner')"><i class="ph ph-scan"></i> Escanear Factura</a>
+                <a href="#" id="nav-productos" class="active"><i class="ph ph-package"></i> Inventario</a>
+                <a href="#" id="nav-ventas"><i class="ph ph-shopping-cart"></i> Ventas</a>
+                <a href="#" id="nav-escaner"><i class="ph ph-scan"></i> Escanear IA</a>
+                <a href="#" id="nav-informes"><i class="ph ph-chart-bar"></i> Informes</a>
             </nav>
             <div class="user-info">
                 <i class="ph ph-user-circle"></i>
@@ -128,6 +129,32 @@
                         <h4>Datos Extraídos</h4>
                         <pre id="json-result"></pre>
                         <button class="btn btn-primary" onclick="guardarFactura()"><i class="ph ph-floppy-disk"></i> Guardar en BD</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN INFORMES -->
+            <section id="sec-informes" class="dashboard-section hidden">
+                <header>
+                    <h1>Informe Semanal</h1>
+                </header>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div class="card glass" style="flex: 1; min-width: 200px; text-align: center;">
+                        <i class="ph ph-currency-circle-dollar icon-large" style="color: #10b981; font-size: 3rem; margin-bottom: 10px;"></i>
+                        <h3 style="color: var(--text-muted); font-size: 1rem;">Total Ventas Semana</h3>
+                        <h2 id="informe-total" style="font-size: 2rem; color: var(--text);">$0</h2>
+                    </div>
+                    <div class="card glass" style="flex: 1; min-width: 200px; text-align: center;">
+                        <i class="ph ph-trend-up icon-large" style="color: #3b82f6; font-size: 3rem; margin-bottom: 10px;"></i>
+                        <h3 style="color: var(--text-muted); font-size: 1rem;">Más Vendido</h3>
+                        <h2 id="informe-mas" style="font-size: 1.5rem; color: var(--text);">-</h2>
+                        <p id="informe-mas-cant" style="color: var(--text-muted); font-size: 0.9rem;">0 unidades</p>
+                    </div>
+                    <div class="card glass" style="flex: 1; min-width: 200px; text-align: center;">
+                        <i class="ph ph-trend-down icon-large" style="color: #ef4444; font-size: 3rem; margin-bottom: 10px;"></i>
+                        <h3 style="color: var(--text-muted); font-size: 1rem;">Menos Vendido</h3>
+                        <h2 id="informe-menos" style="font-size: 1.5rem; color: var(--text);">-</h2>
+                        <p id="informe-menos-cant" style="color: var(--text-muted); font-size: 0.9rem;">0 unidades</p>
                     </div>
                 </div>
             </section>
