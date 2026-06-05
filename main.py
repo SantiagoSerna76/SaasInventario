@@ -219,12 +219,11 @@ async def escanear_factura(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
         
     # Llamar a IA
-    data = extract_invoice_data(file_path)
-    
-    if not data:
-        raise HTTPException(status_code=500, detail="Error procesando la factura con IA")
-        
-    return data
+    try:
+        data = extract_invoice_data(file_path)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/facturas/guardar")
 async def guardar_factura(payload: FacturaPayload, token: str = Depends(oauth2_scheme)):

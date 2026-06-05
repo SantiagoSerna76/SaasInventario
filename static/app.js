@@ -284,18 +284,18 @@ fileInput.addEventListener('change', async (e) => {
             body: formData
         });
         
-        const data = await response.json();
-        scanLoading.classList.add('hidden');
-        
         if (response.ok) {
-            jsonResult.innerText = JSON.stringify(data, null, 2);
-            scanResult.classList.remove('hidden');
+            const data = await response.json();
+            document.getElementById('json-result').innerText = JSON.stringify(data, null, 2);
+            document.getElementById('scan-result').classList.remove('hidden');
         } else {
-            alert('Error de IA: ' + (data.detail || 'Error desconocido'));
+            const err = await response.json();
+            alert("Error al analizar la factura: " + (err.detail || "Error desconocido"));
         }
-    } catch (error) {
+    } catch (e) {
+        alert("Error de red al subir archivo: " + e.message);
+    } finally {
         scanLoading.classList.add('hidden');
-        alert('Error conectando con la API de IA.');
     }
 });
 

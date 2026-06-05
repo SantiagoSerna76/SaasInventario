@@ -58,4 +58,4 @@ def extract_invoice_data(image_path: str):
 
     except Exception as e:
         print(f"Error procesando factura con IA: {e}")
-        return None
+        raise Exception(f"Error de Gemini: {str(e)}")
