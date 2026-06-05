@@ -23,8 +23,6 @@ CREATE TABLE USUARIOS (
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     rol VARCHAR(50) NOT NULL DEFAULT 'vendedor',
-    intentos_fallidos INT DEFAULT 0,
-    bloqueado_hasta DATETIME NULL,
     FOREIGN KEY (id_empresa) REFERENCES EMPRESAS(id_empresa) ON DELETE CASCADE
 );
 
@@ -276,10 +274,16 @@ INSERT INTO PROVEEDORES (id_empresa, nombre_proveedor, telefono_contacto) VALUES
 (2, 'Importaciones Electrónicas', '3005556666'),
 (2, 'CompuMayoristas', '3157778888');
 
--- Insertar 6 Categorías
+-- Insertar-- 4. CATEGORÍAS (Básicas y Nuevas)
 INSERT INTO CATEGORIAS (id_empresa, nombre_categoria) VALUES 
-(1, 'Lácteos'), (1, 'Cereales'), (1, 'Bebidas'),
-(2, 'Computadores'), (2, 'Periféricos'), (2, 'Celulares');
+(1, 'Lácteos'), (1, 'Cereales'), (1, 'Bebidas'), 
+(2, 'Computadores'), (2, 'Periféricos'), (2, 'Celulares'),
+(1, 'Panadería y Pastelería'), (1, 'Licores y Cervezas'), 
+(1, 'Ropa y Accesorios'), (1, 'Carnes y Embutidos'), 
+(1, 'Aseo y Limpieza del Hogar'), (1, 'Cuidado Personal'), 
+(1, 'Frutas y Verduras'), (1, 'Snacks y Dulces'), 
+(1, 'Medicamentos y Farmacia'), (1, 'Herramientas y Ferretería'), 
+(1, 'Juguetes y Juegos'), (1, 'Papelería y Oficina'), (1, 'Mascotas');
 
 -- Insertar 10 Productos
 INSERT INTO PRODUCTOS (id_empresa, id_categoria, nombre_producto, precio_costo, precio_venta, cantidad_stock) VALUES 

@@ -66,31 +66,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if not user:
         conn.close()
         raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
-        
-    # Verificar si está bloqueado
-    if user['bloqueado_hasta'] and user['bloqueado_hasta'] > datetime.now():
-        conn.close()
-        raise HTTPException(status_code=400, detail="Cuenta bloqueada temporalmente")
-        
     if not verify_password(form_data.password, user['password_hash']):
-        # Incrementar intentos fallidos
-        cursor.execute("UPDATE USUARIOS SET intentos_fallidos = intentos_fallidos + 1 WHERE id_usuario = %s", (user['id_usuario'],))
-        conn.commit()
-        # Si llega a 3, bloquear
-        cursor.execute("SELECT intentos_fallidos FROM USUARIOS WHERE id_usuario = %s", (user['id_usuario'],))
-        intentos = cursor.fetchone()['intentos_fallidos']
-        if intentos >= 3:
-            cursor.execute("UPDATE USUARIOS SET bloqueado_hasta = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE id_usuario = %s", (user['id_usuario'],))
-            conn.commit()
-            conn.close()
-            raise HTTPException(status_code=400, detail="Cuenta bloqueada temporalmente por 15 minutos")
-            
         conn.close()
         raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
-
-    # Resetear intentos si el login es exitoso
-    cursor.execute("UPDATE USUARIOS SET intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id_usuario = %s", (user['id_usuario'],))
-    conn.commit()
+        
     conn.close()
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -289,6 +268,63 @@ async def guardar_factura(payload: FacturaPayload, token: str = Depends(oauth2_s
         conn.close()
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/api/informes/semanal")
+async def informe_semanal(token: str = Depends(oauth2_scheme)):
+    conn = get_db_connection()
+    # Try dictionary cursor if supported
+    cursor = conn.cursor(dictionary=True) if hasattr(conn.cursor(), 'dictionary') else conn.cursor()
+    try:
+        # 1. Total semana
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_venta), 0) as total_semana
+            FROM VENTAS
+            WHERE YEARWEEK(fecha_venta, 1) = YEARWEEK(CURRENT_DATE(), 1)
+        """)
+        res_total = cursor.fetchone()
+        total_semana = res_total['total_semana'] if isinstance(res_total, dict) else res_total[0]
+        
+        # 2. Producto más vendido de la semana
+        cursor.execute("""
+            SELECT P.nombre_producto, SUM(DV.cantidad_vendida) as total_vendido
+            FROM DETALLE_VENTAS DV
+            INNER JOIN VENTAS V ON DV.id_venta = V.id_venta
+            INNER JOIN PRODUCTOS P ON DV.id_producto = P.id_producto
+            WHERE YEARWEEK(V.fecha_venta, 1) = YEARWEEK(CURRENT_DATE(), 1)
+            GROUP BY DV.id_producto
+            ORDER BY total_vendido DESC
+            LIMIT 1
+        """)
+        mas_vendido = cursor.fetchone()
+        
+        # 3. Producto menos vendido de la semana
+        cursor.execute("""
+            SELECT P.nombre_producto, SUM(DV.cantidad_vendida) as total_vendido
+            FROM DETALLE_VENTAS DV
+            INNER JOIN VENTAS V ON DV.id_venta = V.id_venta
+            INNER JOIN PRODUCTOS P ON DV.id_producto = P.id_producto
+            WHERE YEARWEEK(V.fecha_venta, 1) = YEARWEEK(CURRENT_DATE(), 1)
+            GROUP BY DV.id_producto
+            ORDER BY total_vendido ASC
+            LIMIT 1
+        """)
+        menos_vendido = cursor.fetchone()
+        
+        def get_val(row, key, index):
+            if not row: return None
+            return row[key] if isinstance(row, dict) else row[index]
+
+        return {
+            "total_semana": float(total_semana),
+            "mas_vendido": get_val(mas_vendido, 'nombre_producto', 0) or "Sin ventas",
+            "mas_vendido_cant": int(get_val(mas_vendido, 'total_vendido', 1) or 0),
+            "menos_vendido": get_val(menos_vendido, 'nombre_producto', 0) or "Sin ventas",
+            "menos_vendido_cant": int(get_val(menos_vendido, 'total_vendido', 1) or 0)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 # ==========================================
 # SERVIR EL FRONTEND WEB
