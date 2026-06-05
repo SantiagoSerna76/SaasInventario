@@ -143,3 +143,72 @@ pre { color: var(--text); font-family: 'Consolas', monospace; white-space: pre-w
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .modal-content { width: 100%; max-width: 400px; padding: 32px; background: #ffffff; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
 .modal-content h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; }
+
+/* Responsive / Mobile Styles */
+@media (max-width: 768px) {
+    /* Stack Dashboard Layout */
+    #dashboard-screen.active {
+        flex-direction: column;
+    }
+    
+    /* Make Sidebar horizontal on top or small */
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        border-right: none;
+        border-bottom: 1px solid var(--surface-border);
+    }
+    
+    .sidebar nav {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .sidebar nav a {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .user-info {
+        padding-top: 10px;
+        margin-top: 0;
+    }
+
+    /* Content Area */
+    .content {
+        padding: 15px;
+        width: 100%;
+    }
+    
+    header h1 {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    /* Tables horizontal scroll */
+    .table-card {
+        overflow-x: auto;
+    }
+    
+    /* Login Card */
+    .login-card {
+        padding: 30px 20px;
+        margin: 15px;
+    }
+    
+    /* Modal */
+    .modal-content {
+        width: 90%;
+        padding: 20px;
+    }
+}
