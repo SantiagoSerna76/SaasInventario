@@ -176,10 +176,11 @@ async function eliminarProducto(id) {
         if (response.ok) {
             cargarProductos();
         } else {
-            alert("Error al eliminar producto");
+            const err = await response.json();
+            alert("Error al eliminar producto: " + (err.detail || "Error desconocido"));
         }
     } catch(err) {
-        alert("Error de red");
+        alert("Error de red: " + err.message);
     }
 }
 

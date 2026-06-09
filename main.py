@@ -156,6 +156,14 @@ async def eliminar_producto(id_producto: int, token: str = Depends(oauth2_scheme
     except Exception as e:
         conn.rollback()
         conn.close()
+        
+        # Verificar si es un error de integridad referencial (llave foránea en MySQL: errno 1451)
+        import mysql.connector
+        if isinstance(e, mysql.connector.Error) and e.errno == 1451:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se puede eliminar el producto porque tiene historial de ventas o compras asociado. Para mantener la integridad de los datos, la base de datos bloquea su eliminación."
+            )
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ventas/registrar")
