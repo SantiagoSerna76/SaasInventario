@@ -147,23 +147,24 @@ async def eliminar_producto(id_producto: int, token: str = Depends(oauth2_scheme
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        # 1. Borrar de KARDEX_AUDITORIA
+        cursor.execute("DELETE FROM KARDEX_AUDITORIA WHERE id_producto = %s", (id_producto,))
+        # 2. Borrar de DETALLE_VENTAS
+        cursor.execute("DELETE FROM DETALLE_VENTAS WHERE id_producto = %s", (id_producto,))
+        # 3. Borrar de DETALLE_FACTURAS
+        cursor.execute("DELETE FROM DETALLE_FACTURAS WHERE id_producto = %s", (id_producto,))
+        
+        # 4. Borrar el producto finalmente
         cursor.execute("DELETE FROM PRODUCTOS WHERE id_producto = %s", (id_producto,))
         conn.commit()
+        
         if cursor.rowcount == 0:
             raise HTTPException(status_code=404, detail="Producto no encontrado")
         conn.close()
-        return {"mensaje": "Producto eliminado"}
+        return {"mensaje": "Producto eliminado exitosamente"}
     except Exception as e:
         conn.rollback()
         conn.close()
-        
-        # Verificar si es un error de integridad referencial (llave foránea en MySQL: errno 1451)
-        import mysql.connector
-        if isinstance(e, mysql.connector.Error) and e.errno == 1451:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No se puede eliminar el producto porque tiene historial de ventas o compras asociado. Para mantener la integridad de los datos, la base de datos bloquea su eliminación."
-            )
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ventas/registrar")
