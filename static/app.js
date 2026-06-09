@@ -85,8 +85,8 @@ function showSection(sectionId) {
     }
     
     // Cambiar título
-    const titles = { 'productos': 'Inventario', 'ventas': 'Gestión de Ventas', 'escaner': 'Escaneo por IA' };
-    sectionTitle.innerText = titles[sectionId];
+    const titles = { 'productos': 'Inventario', 'ventas': 'Gestión de Ventas', 'escaner': 'Escaneo por IA', 'informes': 'Informes' };
+    sectionTitle.innerText = titles[sectionId] || sectionId;
 }
 
 // CARGAR PRODUCTOS (GET /api/productos)
