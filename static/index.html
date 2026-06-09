@@ -136,14 +136,22 @@
             <!-- SECCIÓN INFORMES -->
             <section id="sec-informes" class="dashboard-section hidden">
                 <header>
-                    <h1>Informe Semanal</h1>
+                    <h1>Informes</h1>
                 </header>
-                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
                     <div class="card glass" style="flex: 1; min-width: 200px; text-align: center;">
                         <i class="ph ph-currency-circle-dollar icon-large" style="color: #10b981; font-size: 3rem; margin-bottom: 10px;"></i>
                         <h3 style="color: var(--text-muted); font-size: 1rem;">Total Ventas Semana</h3>
                         <h2 id="informe-total" style="font-size: 2rem; color: var(--text);">$0</h2>
                     </div>
+                    <div class="card glass" style="flex: 1; min-width: 200px; text-align: center;">
+                        <i class="ph ph-calendar icon-large" style="color: #f59e0b; font-size: 3rem; margin-bottom: 10px;"></i>
+                        <h3 style="color: var(--text-muted); font-size: 1rem;">Total Ventas Mes</h3>
+                        <h2 id="informe-total-mes" style="font-size: 2rem; color: var(--text);">$0</h2>
+                        <p style="color: var(--text-muted); font-size: 0.75rem;">fn_total_ventas_mes()</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <div class="card glass" style="flex: 1; min-width: 200px; text-align: center;">
                         <i class="ph ph-trend-up icon-large" style="color: #3b82f6; font-size: 3rem; margin-bottom: 10px;"></i>
                         <h3 style="color: var(--text-muted); font-size: 1rem;">Más Vendido</h3>
@@ -226,6 +234,6 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=2.0"></script>
+    <script src="/static/app.js?v=3.0"></script>
 </body>
 </html>

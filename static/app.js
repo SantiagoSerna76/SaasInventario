@@ -350,7 +350,7 @@ document.getElementById('nav-informes').addEventListener('click', (e) => {
     cargarInforme();
 });
 
-// CARGAR INFORME SEMANAL
+// CARGAR INFORMES (SEMANAL + MENSUAL)
 async function cargarInforme() {
     try {
         const response = await fetch(`${API_URL}/informes/semanal`, {
@@ -363,10 +363,21 @@ async function cargarInforme() {
             document.getElementById('informe-mas-cant').innerText = `${data.mas_vendido_cant} unidades`;
             document.getElementById('informe-menos').innerText = data.menos_vendido;
             document.getElementById('informe-menos-cant').innerText = `${data.menos_vendido_cant} unidades`;
-        } else {
-            console.error('Error cargando informe');
         }
     } catch (e) {
-        console.error('Network error loading reports', e);
+        console.error('Error cargando informe semanal', e);
+    }
+
+    // Informe mensual - usa la función SQL fn_total_ventas_mes()
+    try {
+        const res = await fetch(`${API_URL}/informes/mensual`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById('informe-total-mes').innerText = `$${data.total_mes.toLocaleString()}`;
+        }
+    } catch (e) {
+        console.error('Error cargando informe mensual', e);
     }
 }

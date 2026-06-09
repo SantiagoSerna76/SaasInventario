@@ -335,6 +335,22 @@ async def informe_semanal(token: str = Depends(oauth2_scheme)):
     finally:
         conn.close()
 
+@app.get("/api/informes/mensual")
+async def informe_mensual(token: str = Depends(oauth2_scheme)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Llama directamente a la función SQL fn_total_ventas_mes
+        id_empresa = 1
+        cursor.execute("SELECT fn_total_ventas_mes(%s)", (id_empresa,))
+        resultado = cursor.fetchone()
+        total_mes = float(resultado[0]) if resultado and resultado[0] else 0.0
+        return {"total_mes": total_mes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
 # ==========================================
 # SERVIR EL FRONTEND WEB
 # ==========================================
